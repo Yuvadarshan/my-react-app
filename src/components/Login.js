@@ -5,6 +5,7 @@ import { auth, db } from '../firebase-config';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import LoadingSpinner from './LoadingSpinner';
 import '../styles/Login.css';
+import logo from '/Users/yuvadarshanmurugan/my-react-app/src/assets/logo.png'; // Import the logo image
 
 const Login = ({ showNotification }) => {
   const [email, setEmail] = useState('');
@@ -131,6 +132,7 @@ const Login = ({ showNotification }) => {
     <div className="login-container">
       <div className="login-card">
         <div className="login-header">
+        <img src={logo} alt="Logo" className="logo" />
           <h1>CSE OD Tracking System</h1>
           <p>On Duty Tracking System</p>
         </div>

@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { collection, addDoc, query, where, getDocs, updateDoc, doc, orderBy, deleteDoc } from 'firebase/firestore';
+import { collection, addDoc, query, where, getDocs, updateDoc, doc, orderBy } from 'firebase/firestore';
 import { db, auth } from '../firebase-config';
 import '../styles/TeacherDashboard.css';
-
+import { getDoc } from 'firebase/firestore';
 // Separate EventCreationForm component to prevent unnecessary re-renders
 const EventCreationForm = ({ showNotification, fetchEvents }) => {
   const [eventForm, setEventForm] = useState({
@@ -16,6 +16,17 @@ const EventCreationForm = ({ showNotification, fetchEvents }) => {
 
   const [loading, setLoading] = useState(false);
 
+ const getTeacherProfile = async () => {
+  const email = auth.currentUser.email;
+  const userDoc = await getDoc(doc(db, 'users', email));
+  if (userDoc.exists()) {
+    const data = userDoc.data();
+    const teacherDepartment = data.department;
+    const teacherSection = data.section;
+    return { teacherDepartment, teacherSection };
+  }
+  return { teacherDepartment: null, teacherSection: null };
+};
   const handleInputChange = useCallback((field, value) => {
     setEventForm(prev => ({
       ...prev,
@@ -160,28 +171,22 @@ const EventCreationForm = ({ showNotification, fetchEvents }) => {
 };
 
 // Separate EventsList component
-const EventsList = ({ events, showNotification, fetchEvents }) => {
-  const handleDeleteEvent = async (eventId, eventName) => {
-    if (window.confirm(`Are you sure you want to delete the event "${eventName}"? This action cannot be undone.`)) {
+const EventsList = ({ events, showNotification }) => {
+  const handleDeleteEvent = async (eventId) => {
+    if (window.confirm('Are you sure you want to delete this event?')) {
       try {
-        // Delete the event from Firestore
-        await deleteDoc(doc(db, 'events', eventId));
-        showNotification('Event deleted successfully!', 'success');
-        fetchEvents(); // Refresh the events list
+        // Note: You'll need to implement proper delete functionality
+        // This requires setting up appropriate security rules
+        showNotification('Delete functionality needs to be implemented with proper security rules', 'info');
       } catch (error) {
-        console.error('Error deleting event:', error);
-        if (error.code === 'permission-denied') {
-          showNotification('You do not have permission to delete events. Please check your security rules.', 'error');
-        } else {
-          showNotification('Error deleting event: ' + error.message, 'error');
-        }
+        showNotification('Error deleting event: ' + error.message, 'error');
       }
     }
   };
 
   return (
     <div className="events-list-section">
-      <h2>Existing Events ({events.length})</h2>
+      <h2>Existing Events</h2>
       <div className="events-grid">
         {events.length === 0 ? (
           <p className="no-events">No events found. Create your first event!</p>
@@ -200,16 +205,11 @@ const EventsList = ({ events, showNotification, fetchEvents }) => {
                   <strong>To:</strong> {event.toDate?.toLocaleString()}
                 </div>
               </div>
-              <div className="event-meta">
-                <small>Created by: {event.createdBy || 'Unknown'}</small>
-                <small>Created at: {event.createdAt?.toDate().toLocaleString()}</small>
-              </div>
               <button 
-                onClick={() => handleDeleteEvent(event.id, event.name)}
+                onClick={() => handleDeleteEvent(event.id)}
                 className="delete-event-btn"
-                title="Delete Event"
               >
-                🗑️ Delete
+                Delete
               </button>
             </div>
           ))
@@ -280,10 +280,13 @@ const ViewAttachment = ({ request }) => {
 };
 
 // Separate AttendanceView component
-const AttendanceView = ({ attendance, filters, students, showNotification, updateStudentAttendance, markAllAttendance, setFilters }) => {
+const AttendanceView = ({ attendance, filters, students, showNotification, updateStudentAttendance, markAllAttendance, setFilters, teacherDepartment, teacherSection }) => {
+  // Only show students matching teacher's department and section
   const filteredAttendance = attendance.filter(record =>
     (!filters.department || record.studentDepartment === filters.department) &&
-    (!filters.section || record.studentSection === filters.section)
+    (!filters.section || record.studentSection === filters.section) &&
+    (teacherDepartment ? record.studentDepartment === teacherDepartment : true) &&
+    (teacherSection ? record.studentSection === teacherSection : true)
   );
 
   return (
@@ -403,6 +406,26 @@ const TeacherDashboard = ({ showNotification, onLogout }) => {
     year: '',
     date: new Date().toISOString().split('T')[0]
   });
+  const [teacherDepartment, setTeacherDepartment] = useState('');
+  const [teacherSection, setTeacherSection] = useState('');
+  // Fetch teacher profile on mount
+  useEffect(() => {
+    const fetchTeacherProfile = async () => {
+      try {
+        const email = auth.currentUser?.email;
+        if (!email) return;
+        const userDoc = await getDoc(doc(db, 'users', email));
+        if (userDoc.exists()) {
+          const data = userDoc.data();
+          setTeacherDepartment(data.department || '');
+          setTeacherSection(data.section || '');
+        }
+      } catch (error) {
+        showNotification('Error fetching teacher profile: ' + error.message, 'error');
+      }
+    };
+    fetchTeacherProfile();
+  }, [showNotification]);
 
   // Memoize fetch functions to prevent unnecessary re-renders
   const fetchEvents = useCallback(async () => {
@@ -562,10 +585,32 @@ const TeacherDashboard = ({ showNotification, onLogout }) => {
   }, [activeTab, filters.date, fetchEvents, fetchOdRequests, fetchStudents, fetchAttendance]);
 
   const filteredStudents = students.filter(student => {
+    // Filter by teacher's department and section
+    const matchesDept = teacherDepartment ? student.department === teacherDepartment : true;
+    const matchesSection = teacherSection ? student.section === teacherSection : true;
+    // Filter by dropdown filters
+    const matchesFilterDept = filters.department ? student.department === filters.department : true;
+    const matchesFilterSection = filters.section ? student.section === filters.section : true;
+    const matchesYear = filters.year ? student.year === filters.year : true;
+
+    // Only show students who currently have OD requests:
+    // - pending requests
+    // - approved requests where today <= toDate
+    const today = new Date();
+    const hasCurrentOD = odRequests.some(request => {
+      if (request.studentEmail !== student.email) return false;
+      if (request.status === 'pending') return true;
+      if (request.status === 'approved' && request.toDate && today <= request.toDate) return true;
+      return false;
+    });
+
     return (
-      (filters.department ? student.department === filters.department : true) &&
-      (filters.section ? student.section === filters.section : true) &&
-      (filters.year ? student.year === filters.year : true)
+      matchesDept &&
+      matchesSection &&
+      matchesFilterDept &&
+      matchesFilterSection &&
+      matchesYear &&
+      hasCurrentOD
     );
   });
 
@@ -625,20 +670,23 @@ const TeacherDashboard = ({ showNotification, onLogout }) => {
           <div className="requests-section">
             <h2>OD Requests</h2>
             <div className="requests-list">
-              {odRequests.map(request => (
-                <div key={request.id} className="request-card">
-                  <h3>{request.studentName}</h3>
-                  <p>Department: {request.studentDepartment}</p>
-                  <p>Section: {request.studentSection}</p>
-                  <p>From: {request.fromDate?.toLocaleDateString()}</p>
-                  <p>To: {request.toDate?.toLocaleDateString()}</p>
-                  <p>Status: <span className={`status ${request.status}`}>{request.status}</span></p>
-                  
-                  {request.documentBase64 && (
-                    <ViewAttachment request={request} />
-                  )}
-                  
-                  {request.status === 'pending' && (
+              {odRequests
+                .filter(request =>
+                  request.studentDepartment === teacherDepartment &&
+                  request.studentSection === teacherSection &&
+                  request.status === 'pending'
+                )
+                .map(request => (
+                  <div key={request.id} className="request-card">
+                    <h3>{request.studentName}</h3>
+                    <p>Department: {request.studentDepartment}</p>
+                    <p>Section: {request.studentSection}</p>
+                    <p>From: {request.fromDate?.toLocaleDateString()}</p>
+                    <p>To: {request.toDate?.toLocaleDateString()}</p>
+                    <p>Status: <span className={`status ${request.status}`}>{request.status}</span></p>
+                    {request.documentBase64 && (
+                      <ViewAttachment request={request} />
+                    )}
                     <div className="action-buttons">
                       <button 
                         onClick={() => handleApproveRequest(request.id)}
@@ -653,9 +701,8 @@ const TeacherDashboard = ({ showNotification, onLogout }) => {
                         Reject
                       </button>
                     </div>
-                  )}
-                </div>
-              ))}
+                  </div>
+                ))}
             </div>
           </div>
         )}
@@ -699,15 +746,36 @@ const TeacherDashboard = ({ showNotification, onLogout }) => {
             </div>
             
             <div className="students-list">
-              {filteredStudents.map(student => (
-                <div key={student.id} className="student-card">
-                  <h3>{student.name}</h3>
-                  <p>Email: {student.email}</p>
-                  <p>Department: {student.department}</p>
-                  <p>Section: {student.section}</p>
-                  <p>Year: {student.year}</p>
-                </div>
-              ))}
+              {filteredStudents.map(student => {
+                // Find the current OD request for this student
+                const currentOD = odRequests.find(request => {
+                  if (request.studentEmail !== student.email) return false;
+                  if (request.status === 'pending') return true;
+                  if (request.status === 'approved' && request.toDate) {
+                    const today = new Date();
+                    return today <= request.toDate;
+                  }
+                  return false;
+                });
+                return (
+                  <div key={student.id} className="student-card">
+                    <h3>{student.name}</h3>
+                    <p>Email: {student.email}</p>
+                    <p>Department: {student.department}</p>
+                    <p>Section: {student.section}</p>
+                    <p>Year: {student.year}</p>
+                    {currentOD && (
+                      <>
+                        <p>OD Start: {currentOD.fromDate?.toLocaleDateString()}</p>
+                        <p>OD End: {currentOD.toDate?.toLocaleDateString()}</p>
+                        {currentOD.documentBase64 && (
+                          <ViewAttachment request={currentOD} />
+                        )}
+                      </>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           </div>
         )}
@@ -726,7 +794,6 @@ const TeacherDashboard = ({ showNotification, onLogout }) => {
                 <option value="EEE">EEE</option>
                 <option value="MECH">MECH</option>
               </select>
-              
               <select 
                 value={filters.section} 
                 onChange={(e) => setFilters(prev => ({...prev, section: e.target.value}))}
@@ -745,6 +812,8 @@ const TeacherDashboard = ({ showNotification, onLogout }) => {
               updateStudentAttendance={updateStudentAttendance}
               markAllAttendance={markAllAttendance}
               setFilters={setFilters}
+              teacherDepartment={teacherDepartment}
+              teacherSection={teacherSection}
             />
           </div>
         )}
