@@ -5,7 +5,7 @@ import { auth, db } from '../firebase-config';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import LoadingSpinner from './LoadingSpinner';
 import '../styles/Login.css';
-import logo from '/Users/yuvadarshanmurugan/my-react-app/src/assets/logo.png'; // Import the logo image
+import logo from 'src/assets/logo.png'; // Import the logo image
 
 const Login = ({ showNotification }) => {
   const [email, setEmail] = useState('');
