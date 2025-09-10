@@ -160,28 +160,22 @@ const EventCreationForm = ({ showNotification, fetchEvents }) => {
 };
 
 // Separate EventsList component
-const EventsList = ({ events, showNotification, fetchEvents }) => {
-  const handleDeleteEvent = async (eventId, eventName) => {
-    if (window.confirm(`Are you sure you want to delete the event "${eventName}"? This action cannot be undone.`)) {
+const EventsList = ({ events, showNotification }) => {
+  const handleDeleteEvent = async (eventId) => {
+    if (window.confirm('Are you sure you want to delete this event?')) {
       try {
-        // Delete the event from Firestore
-        await deleteDoc(doc(db, 'events', eventId));
-        showNotification('Event deleted successfully!', 'success');
-        fetchEvents(); // Refresh the events list
+        // Note: You'll need to implement proper delete functionality
+        // This requires setting up appropriate security rules
+        showNotification('Delete functionality needs to be implemented with proper security rules', 'info');
       } catch (error) {
-        console.error('Error deleting event:', error);
-        if (error.code === 'permission-denied') {
-          showNotification('You do not have permission to delete events. Please check your security rules.', 'error');
-        } else {
-          showNotification('Error deleting event: ' + error.message, 'error');
-        }
+        showNotification('Error deleting event: ' + error.message, 'error');
       }
     }
   };
 
   return (
     <div className="events-list-section">
-      <h2>Existing Events ({events.length})</h2>
+      <h2>Existing Events</h2>
       <div className="events-grid">
         {events.length === 0 ? (
           <p className="no-events">No events found. Create your first event!</p>
@@ -200,16 +194,11 @@ const EventsList = ({ events, showNotification, fetchEvents }) => {
                   <strong>To:</strong> {event.toDate?.toLocaleString()}
                 </div>
               </div>
-              <div className="event-meta">
-                <small>Created by: {event.createdBy || 'Unknown'}</small>
-                <small>Created at: {event.createdAt?.toDate().toLocaleString()}</small>
-              </div>
               <button 
-                onClick={() => handleDeleteEvent(event.id, event.name)}
+                onClick={() => handleDeleteEvent(event.id)}
                 className="delete-event-btn"
-                title="Delete Event"
               >
-                🗑️ Delete
+                Delete
               </button>
             </div>
           ))
