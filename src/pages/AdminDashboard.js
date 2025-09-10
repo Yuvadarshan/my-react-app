@@ -113,19 +113,14 @@ const AdminDashboard = ({ showNotification, onLogout }) => {
           }
           
           const userData = {
-            name: name.toString().trim(),
-            email: email.toString().toLowerCase().trim(),
-            department: department.toString().trim(),
-            section: section.toString().trim(),
-            year: year.toString().trim(),
-            tempPassword: password.toString().trim(),
-            passwordSet: Boolean(
-              passwordSet === true || 
-              passwordSet === 'true' || 
-              passwordSet === 'TRUE' || 
-              passwordSet === '1'
-            ),
-            role: type === 'students' ? 'student' : 'teacher',
+            name: item.name,
+            email: item.email.toLowerCase(),
+            department: item.department,
+            section: item.section,
+            year: item.year,
+            tempPassword: item.password,
+            passwordSet: item.password_set === true || item.password_set === 'true' || item.password_set === 'TRUE',
+            role: type === 'students' ? 'student' : 'teacher', // Make sure this is set
             createdAt: new Date(),
             updatedAt: new Date()
           };
