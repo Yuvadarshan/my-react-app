@@ -1,528 +1,510 @@
+/* AdminDashboard.css */
+
 .admin-dashboard {
   min-height: 100vh;
-  background: #f8fafc;
-  font-family: 'Inter', sans-serif;
+  background-color: #f5f7f9;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
+/* Header Styles */
 .admin-header {
-  background: linear-gradient(135deg, #4361ee 0%, #3a0ca3 100%);
+  background: linear-gradient(135deg, #efed82 0%, #ffffff 100%);
   color: white;
-  padding: 24px 32px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
-
-.admin-header h1 {
-  font-size: 2.2rem;
-  font-weight: 700;
-  margin: 0;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.admin-tabs {
-  display: flex;
-  background: white;
-  border-bottom: 2px solid #e2e8f0;
-  padding: 0 32px;
-}
-
-.admin-tabs button {
-  padding: 16px 24px;
-  border: none;
-  background: transparent;
-  font-weight: 500;
-  color: #64748b;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  position: relative;
-  border-bottom: 3px solid transparent;
-}
-
-.admin-tabs button.active {
-  color: #4361ee;
-  border-bottom-color: #4361ee;
-}
-
-.admin-tabs button:hover:not(.active) {
-  color: #374151;
-  background: #f8fafc;
-}
-
-.admin-content {
-  padding: 32px;
-  max-width: 1200px;
-  margin: 0 auto;
-}
-
-.upload-section {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-  gap: 24px;
-  margin-bottom: 32px;
-}
-
-.upload-card {
-  background: white;
-  border-radius: 16px;
-  padding: 28px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-  transition: all 0.3s ease;
-  border: 1px solid #e2e8f0;
-}
-
-.upload-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
-}
-
-.upload-card h2 {
-  color: #1f2937;
-  font-size: 1.5rem;
-  margin-bottom: 12px;
-  font-weight: 600;
-}
-
-.upload-card p {
-  color: #64748b;
-  margin-bottom: 20px;
-  line-height: 1.5;
-}
-
-.upload-card input[type="file"] {
-  width: 100%;
-  padding: 16px;
-  border: 2px dashed #d1d5db;
-  border-radius: 12px;
-  background: #fafafa;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.upload-card input[type="file"]:hover {
-  border-color: #4361ee;
-  background: #f8fafc;
-}
-
-.upload-card input[type="file"]:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.upload-status {
-  margin-top: 16px;
-  padding: 12px;
-  border-radius: 8px;
-  font-weight: 500;
-}
-
-.upload-status.success {
-  background: #dcfce7;
-  color: #166534;
-  border: 1px solid #bbf7d0;
-}
-
-.upload-status.error {
-  background: #fee2e2;
-  color: #b91c1c;
-  border: 1px solid #fecaca;
-}
-
-.upload-status.loading {
-  background: #dbeafe;
-  color: #1e40af;
-  border: 1px solid #bfdbfe;
-}
-
-.manage-section h2 {
-  color: #1f2937;
-  font-size: 1.8rem;
-  margin-bottom: 24px;
-  font-weight: 600;
-}
-
-.users-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 20px;
-}
-
-.user-card {
-  background: white;
-  border-radius: 12px;
-  padding: 20px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-  border: 1px solid #e2e8f0;
-  transition: all 0.3s ease;
-}
-
-.user-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
-}
-
-.user-card h3 {
-  color: #1f2937;
-  font-size: 1.2rem;
-  margin-bottom: 8px;
-  font-weight: 600;
-}
-
-.user-card p {
-  color: #64748b;
-  margin-bottom: 6px;
-  font-size: 0.95rem;
-}
-
-.user-status {
-  display: inline-block;
-  padding: 4px 12px;
-  border-radius: 20px;
-  font-size: 0.85rem;
-  font-weight: 500;
-  margin-top: 8px;
-}
-
-.status-active {
-  background: #dcfce7;
-  color: #166534;
-}
-
-.status-pending {
-  background: #fef3c7;
-  color: #92400e;
-}
-
-.status-inactive {
-  background: #f3f4f6;
-  color: #374151;
-}
-
-/* Responsive Design */
-@media (max-width: 768px) {
-  .admin-header {
-    padding: 20px 24px;
-  }
-  
-  .admin-header h1 {
-    font-size: 1.8rem;
-  }
-  
-  .admin-tabs {
-    padding: 0 24px;
-    overflow-x: auto;
-    white-space: nowrap;
-  }
-  
-  .admin-tabs button {
-    padding: 14px 20px;
-    font-size: 0.95rem;
-  }
-  
-  .admin-content {
-    padding: 24px;
-  }
-  
-  .upload-section {
-    grid-template-columns: 1fr;
-    gap: 20px;
-  }
-  
-  .upload-card {
-    padding: 24px;
-  }
-  
-  .users-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-@media (max-width: 480px) {
-  .admin-header {
-    padding: 16px 20px;
-  }
-  
-  .admin-header h1 {
-    font-size: 1.6rem;
-  }
-  
-  .admin-tabs {
-    padding: 0 16px;
-  }
-  
-  .admin-tabs button {
-    padding: 12px 16px;
-    font-size: 0.9rem;
-  }
-  
-  .admin-content {
-    padding: 20px 16px;
-  }
-  
-  .upload-card {
-    padding: 20px;
-  }
-}
-
-/* Animation for content */
-.admin-content {
-  animation: fadeIn 0.4s ease-out;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* Empty state */
-.empty-state {
-  text-align: center;
-  padding: 60px 20px;
-  color: #64748b;
-}
-
-.empty-state h3 {
-  color: #374151;
-  margin-bottom: 12px;
-}
-
-.empty-state p {
-  margin-bottom: 24px;
-}
-/* Add these styles to your existing AdminDashboard.css */
-
-.upload-card-header {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  position: relative;
-}
-
-.upload-info {
-  cursor: pointer;
-  color: #64748b;
-  font-size: 1.2rem;
-}
-
-.upload-tooltip {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  background: #1f2937;
-  color: white;
-  padding: 12px;
-  border-radius: 8px;
-  font-size: 0.9rem;
-  width: 300px;
-  z-index: 1000;
-  opacity: 0;
-  visibility: hidden;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-}
-
-.upload-info:hover + .upload-tooltip {
-  opacity: 1;
-  visibility: visible;
-}
-
-.file-input-container {
-  position: relative;
-  margin: 20px 0;
-}
-
-.file-input {
-  position: absolute;
-  opacity: 0;
-  width: 0;
-  height: 0;
-}
-
-.file-input-label {
-  display: inline-block;
-  padding: 14px 24px;
-  background: linear-gradient(135deg, #4361ee, #3a0ca3);
-  color: white;
-  border-radius: 10px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  font-weight: 500;
-  text-align: center;
-}
-
-.file-input-label:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(99, 102, 241, 0.3);
-}
-
-.file-input:disabled + .file-input-label {
-  opacity: 0.7;
-  cursor: not-allowed;
-  transform: none;
-}
-
-.upload-guide {
-  margin-top: 20px;
-  padding: 16px;
-  background: #f8fafc;
-  border-radius: 8px;
-  border-left: 4px solid #4361ee;
-}
-
-.upload-guide h4 {
-  color: #1f2937;
-  margin-bottom: 12px;
-  font-size: 1rem;
-}
-
-.upload-guide ul {
-  color: #64748b;
-  font-size: 0.9rem;
-  line-height: 1.6;
-}
-
-.upload-guide li {
-  margin-bottom: 6px;
-}
-
-.upload-status {
-  margin-top: 16px;
-  padding: 16px;
-  border-radius: 8px;
-  font-weight: 500;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.upload-status.loading {
-  background: #dbeafe;
-  color: #1e40af;
-  border: 1px solid #bfdbfe;
-}
-
-.upload-status.success {
-  background: #dcfce7;
-  color: #166534;
-  border: 1px solid #bbf7d0;
-}
-
-.upload-status.error {
-  background: #fee2e2;
-  color: #b91c1c;
-  border: 1px solid #fecaca;
-}
-
-.status-icon {
-  font-weight: bold;
-  font-size: 1.2rem;
-}
-
-.management-actions {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 16px;
-  margin-bottom: 24px;
-}
-
-.action-btn {
-  background: white;
-  border: 2px solid #e2e8f0;
-  border-radius: 12px;
-  padding: 20px;
-  text-align: center;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-}
-
-.action-btn:hover {
-  border-color: #4361ee;
-  background: #f0f4ff;
-  transform: translateY(-2px);
-}
-
-.action-btn span {
-  color: #374151;
-  font-weight: 500;
-  margin-top: 8px;
-}
-
-.reports-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 20px;
-}
-
-.report-card {
-  background: white;
-  border-radius: 12px;
-  padding: 24px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-  border: 1px solid #e2e8f0;
-  transition: all 0.3s ease;
-}
-
-.report-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
-}
-
-.report-card h3 {
-  color: #1f2937;
-  font-size: 1.2rem;
-  margin-bottom: 12px;
-  font-weight: 600;
-}
-
-.report-card p {
-  color: #64748b;
-  margin-bottom: 8px;
-  font-size: 0.95rem;
-}
-
-/* Responsive adjustments */
-@media (max-width: 768px) {
-  .upload-tooltip {
-    width: 250px;
-    font-size: 0.8rem;
-  }
-  
-  .management-actions {
-    grid-template-columns: 1fr;
-  }
-  
-  .reports-grid {
-    grid-template-columns: 1fr;
-  }
+  padding: 1rem 2rem;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
 .header-content {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.admin-header h1 {
+  margin: 0;
+  font-weight: 600;
+  font-size: 1.8rem;
 }
 
 .logout-btn {
-  background: #ef4444;
+  background-color: rgba(255, 255, 255, 0.2);
   color: white;
-  padding: 10px 20px;
-  border: none;
-  border-radius: 6px;
-  font-weight: 500;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
   cursor: pointer;
   transition: all 0.3s ease;
 }
 
 .logout-btn:hover {
-  background: #dc2626;
-  transform: translateY(-1px);
+  background-color: rgba(255, 255, 255, 0.3);
+}
+
+/* Tab Styles */
+.admin-tabs {
+  display: flex;
+  background-color: white;
+  border-bottom: 1px solid #e1e4e8;
+  padding: 0 2rem;
+}
+
+.admin-tabs button {
+  background: none;
+  border: none;
+  padding: 1rem 1.5rem;
+  font-size: 1rem;
+  color: #6b778c;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.admin-tabs button:hover {
+  color: #2c3e50;
+}
+
+.admin-tabs button.active {
+  color: #2c3e50;
+  font-weight: 600;
+}
+
+.admin-tabs button.active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background-color: #3498db;
+  border-radius: 3px 3px 0 0;
+}
+
+/* Content Area */
+.admin-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+/* Upload Section */
+.upload-section {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: 2rem;
+}
+
+.upload-card {
+  background-color: white;
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.upload-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.upload-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.upload-card h2 {
+  margin: 0;
+  color: #2c3e50;
+  font-size: 1.4rem;
+}
+
+.upload-card p {
+  color: #6b778c;
+  margin-bottom: 1.5rem;
+}
+
+.download-template-btn {
+  background-color: #27ae60;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background-color 0.3s ease;
+}
+
+.download-template-btn:hover:not(:disabled) {
+  background-color: #219653;
+}
+
+.download-template-btn:disabled {
+  background-color: #95a5a6;
+  cursor: not-allowed;
+}
+
+/* File Input Styles */
+.file-input-container {
+  position: relative;
+  margin-bottom: 1.5rem;
+}
+
+.file-input {
+  position: absolute;
+  left: -9999px;
+}
+
+.file-input-label {
+  display: inline-block;
+  background-color: #3498db;
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  text-align: center;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.file-input-label:hover {
+  background-color: #2980b9;
+}
+
+.file-input:disabled + .file-input-label {
+  background-color: #95a5a6;
+  cursor: not-allowed;
+}
+
+/* Upload Status */
+.upload-status {
+  padding: 1rem;
+  border-radius: 4px;
+  margin-bottom: 1.5rem;
+}
+
+.upload-status.loading {
+  background-color: #e8f4fd;
+  border: 1px solid #3498db;
+}
+
+.upload-status.success {
+  background-color: #eafaf1;
+  border: 1px solid #27ae60;
+}
+
+.upload-status.error {
+  background-color: #fdecea;
+  border: 1px solid #e74c3c;
+}
+
+.status-icon {
+  margin-right: 0.5rem;
+  font-weight: bold;
+}
+
+.error-details {
+  margin-top: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.error-details summary {
+  cursor: pointer;
+  color: #6b778c;
+}
+
+.error-details ul {
+  margin: 0.5rem 0 0 0;
+  padding-left: 1.5rem;
+}
+
+/* Upload Guide */
+.upload-guide {
+  background-color: #f8f9fa;
+  padding: 1rem;
+  border-radius: 4px;
+  border-left: 4px solid #3498db;
+}
+
+.upload-guide h4 {
+  margin: 0 0 0.5rem 0;
+  color: #2c3e50;
+}
+
+.upload-guide ul {
+  margin: 0;
+  padding-left: 1.2rem;
+  color: #6b778c;
+}
+
+.upload-guide li {
+  margin-bottom: 0.3rem;
+}
+
+/* Manage Section */
+.manage-section h2 {
+  color: #2c3e50;
+  margin-top: 0;
+}
+
+.management-actions {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.action-btn {
+  background-color: white;
+  border: 1px solid #e1e4e8;
+  padding: 0.75rem 1.5rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  color: #2c3e50;
+}
+
+.action-btn:hover {
+  background-color: #f5f7f9;
+  border-color: #c2cbd2;
+}
+
+.action-btn.save {
+  background-color: #27ae60;
+  color: white;
+  border: none;
+  padding: 0.4rem 0.8rem;
+  font-size: 0.9rem;
+  margin-right: 0.5rem;
+}
+
+.action-btn.save:hover {
+  background-color: #219653;
+}
+
+.action-btn.cancel {
+  background-color: #95a5a6;
+  color: white;
+  border: none;
+  padding: 0.4rem 0.8rem;
+  font-size: 0.9rem;
+}
+
+.action-btn.cancel:hover {
+  background-color: #7f8c8d;
+}
+
+.action-btn.edit {
+  background-color: #3498db;
+  color: white;
+  border: none;
+  padding: 0.4rem 0.8rem;
+  font-size: 0.9rem;
+  margin-right: 0.5rem;
+}
+
+.action-btn.edit:hover {
+  background-color: #2980b9;
+}
+
+.action-btn.reset {
+  background-color: #f39c12;
+  color: white;
+  border: none;
+  padding: 0.4rem 0.8rem;
+  font-size: 0.9rem;
+  margin-right: 0.5rem;
+}
+
+.action-btn.reset:hover {
+  background-color: #e67e22;
+}
+
+.action-btn.delete {
+  background-color: #e74c3c;
+  color: white;
+  border: none;
+  padding: 0.4rem 0.8rem;
+  font-size: 0.9rem;
+}
+
+.action-btn.delete:hover {
+  background-color: #c0392b;
+}
+
+/* Filters */
+.filters-container {
+  display: flex;
+  gap: 2rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.filter-group label {
+  font-weight: 600;
+  color: #2c3e50;
+  font-size: 0.9rem;
+}
+
+.filter-group select,
+.filter-group input {
+  padding: 0.5rem;
+  border: 1px solid #e1e4e8;
+  border-radius: 4px;
+  font-size: 1rem;
+}
+
+/* Users Table */
+.users-table-container {
+  background-color: white;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.users-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.users-table th {
+  background-color: #f8f9fa;
+  padding: 1rem;
+  text-align: left;
+  font-weight: 600;
+  color: #2c3e50;
+  border-bottom: 1px solid #e1e4e8;
+}
+
+.users-table td {
+  padding: 1rem;
+  border-bottom: 1px solid #e1e4e8;
+  color: #2c3e50;
+}
+
+.users-table tr:last-child td {
+  border-bottom: none;
+}
+
+.users-table tr:hover {
+  background-color: #f8f9fa;
+}
+
+.users-table input,
+.users-table select {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid #e1e4e8;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  box-sizing: border-box;
+}
+
+.no-users {
+  text-align: center;
+  color: #6b778c;
+  font-style: italic;
+  padding: 2rem;
+}
+
+/* Role Badges */
+.role-badge {
+  display: inline-block;
+  padding: 0.3rem 0.6rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.role-badge.student {
+  background-color: #e8f4fd;
+  color: #3498db;
+}
+
+.role-badge.teacher {
+  background-color: #eafaf1;
+  color: #27ae60;
+}
+
+/* Action Buttons in Table */
+.action-buttons {
+  display: flex;
+  gap: 0.3rem;
+  flex-wrap: wrap;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .admin-header {
+    padding: 1rem;
+  }
+  
+  .admin-tabs {
+    padding: 0 1rem;
+  }
+  
+  .admin-content {
+    padding: 1rem;
+  }
+  
+  .upload-section {
+    grid-template-columns: 1fr;
+  }
+  
+  .filters-container {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .users-table {
+    display: block;
+    overflow-x: auto;
+  }
+  
+  .action-buttons {
+    flex-direction: column;
+  }
+  
+  .management-actions {
+    flex-wrap: wrap;
+  }
+}
+
+/* Loading Spinner Styles (if not already defined elsewhere) */
+.loading-spinner {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.loading-spinner.small .spinner {
+  width: 16px;
+  height: 16px;
+  border-width: 2px;
+}
+
+.spinner {
+  width: 20px;
+  height: 20px;
+  border: 3px solid rgba(0, 0, 0, 0.1);
+  border-radius: 50%;
+  border-top-color: #3498db;
+  animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }

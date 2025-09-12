@@ -785,8 +785,9 @@
 }
 
 .attendance-controls {
-  display: flex;
-  gap: 15px;
+  display: flexbox;
+  gap: 20px;
+  
   align-items: center;
 }
 
@@ -870,6 +871,12 @@
   border-color: #3b82f6;
   background: #dbeafe;
   color: #1e40af;
+}
+.f{
+  font-weight: 600;
+  line-height: 1.25;
+  margin-bottom: 0.5rem;
+  color: #000000;
 }
 
 .attendance-stats {
@@ -1081,4 +1088,35 @@
   .events-list-section {
     padding: 20px;
   }
+}
+
+.attendance-table th:nth-child(4),
+.attendance-table th:nth-child(5),
+.attendance-table th:nth-child(6) {
+  width: 120px;
+}
+
+.filter-row {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 15px;
+  flex-wrap: wrap;
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  min-width: 200px;
+}
+
+.filter-group label {
+  margin-bottom: 5px;
+  font-weight: 500;
+}
+
+.filter-group select {
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background-color: white;
 }

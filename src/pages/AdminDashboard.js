@@ -1,24 +1,83 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import ExcelJS from 'exceljs';
-import { collection, doc, setDoc } from 'firebase/firestore';
+import { 
+  collection, 
+  doc, 
+  setDoc, 
+  getDocs, 
+  updateDoc,
+  deleteDoc,
+  query,
+  orderBy 
+} from 'firebase/firestore';
 import { db } from '../firebase-config';
 import LoadingSpinner from '../components/LoadingSpinner';
-import Notification from '../components/Notification';
 import '../styles/AdminDashboard.css';
 
 const AdminDashboard = ({ showNotification, onLogout }) => {
   const [activeTab, setActiveTab] = useState('upload');
   const [uploading, setUploading] = useState(false);
   const [uploadStatus, setUploadStatus] = useState({});
-
+  const [users, setUsers] = useState([]);
+  const [loadingUsers, setLoadingUsers] = useState(false);
+  const [filterRole, setFilterRole] = useState('all');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [editingUser, setEditingUser] = useState(null);
+  const [editForm, setEditForm] = useState({
+    name: '',
+    email: '',
+    department: '',
+    section: '',
+    year: '',
+    role: ''
+  });
   // Normalize column names to handle different formats
   const normalizeColumnName = (name) => {
     if (!name) return '';
     return name.toString().toLowerCase().trim().replace(/\s+/g, '_');
   };
 
-  
+  // Fetch users from Firestore
+  const fetchUsers = async () => {
+    setLoadingUsers(true);
+    try {
+      const usersRef = collection(db, 'users');
+      const q = query(usersRef, orderBy('createdAt', 'desc'));
+      const querySnapshot = await getDocs(q);
+      
+      const usersData = [];
+      querySnapshot.forEach((doc) => {
+        usersData.push({ id: doc.id, ...doc.data() });
+      });
+      
+      setUsers(usersData);
+    } catch (error) {
+      console.error('Error fetching users:', error);
+      showNotification('Failed to fetch users', 'error');
+    } finally {
+      setLoadingUsers(false);
+    }
+  };
 
+  // Load users when manage tab is active
+  useEffect(() => {
+    if (activeTab === 'manage') {
+      fetchUsers();
+    }
+  }, [activeTab]);
+
+  // Filter users based on role and search term
+  const filteredUsers = users.filter(user => {
+    const matchesRole = filterRole === 'all' || user.role === filterRole;
+    const matchesSearch = 
+      user.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.department?.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    return matchesRole && matchesSearch;
+  });
+
+  // Process Excel file upload
   const processExcelFile = async (file, type) => {
     const workbook = new ExcelJS.Workbook();
     const reader = new FileReader();
@@ -113,14 +172,14 @@ const AdminDashboard = ({ showNotification, onLogout }) => {
           }
           
           const userData = {
-            name: item.name,
-            email: item.email.toLowerCase(),
-            department: item.department,
-            section: item.section,
-            year: item.year,
-            tempPassword: item.password,
-            passwordSet: item.password_set === true || item.password_set === 'true' || item.password_set === 'TRUE',
-            role: type === 'students' ? 'student' : 'teacher', // Make sure this is set
+            name: name,
+            email: email.toLowerCase(),
+            department: department,
+            section: section,
+            year: year,
+            tempPassword: password,
+            passwordSet: passwordSet === true || passwordSet === 'true' || passwordSet === 'TRUE',
+            role: type === 'students' ? 'student' : 'teacher',
             createdAt: new Date(),
             updatedAt: new Date()
           };
@@ -148,6 +207,10 @@ const AdminDashboard = ({ showNotification, onLogout }) => {
       
       if (processedCount > 0) {
         showNotification(message, 'success');
+        // Refresh user list if we're on the manage tab
+        if (activeTab === 'manage') {
+          fetchUsers();
+        }
       } else {
         showNotification(`Failed to process any ${type}. Check file format.`, 'error');
       }
@@ -243,6 +306,158 @@ const AdminDashboard = ({ showNotification, onLogout }) => {
       a.click();
       URL.revokeObjectURL(url);
     });
+  };
+
+  // Reset password for a user
+  const resetPassword = async (userId, email) => {
+    if (!window.confirm(`Reset password for ${email}? A temporary password will be generated.`)) {
+      return;
+    }
+    
+    try {
+      // Generate a random temporary password
+      const tempPassword = Math.random().toString(36).slice(-8);
+      
+      // Update user in Firestore
+      await updateDoc(doc(db, 'users', userId), {
+        tempPassword: tempPassword,
+        passwordSet: false,
+        updatedAt: new Date()
+      });
+      
+      showNotification(`Password reset for ${email}. Temporary password: ${tempPassword}`, 'success');
+      fetchUsers(); // Refresh the user list
+    } catch (error) {
+      console.error('Error resetting password:', error);
+      showNotification('Failed to reset password', 'error');
+    }
+  };
+
+  // Delete a user
+  const deleteUser = async (userId, email) => {
+    if (!window.confirm(`Are you sure you want to delete ${email}?`)) {
+      return;
+    }
+    
+    try {
+      await deleteDoc(doc(db, 'users', userId));
+      showNotification(`User ${email} deleted successfully`, 'success');
+      fetchUsers(); // Refresh the user list
+    } catch (error) {
+      console.error('Error deleting user:', error);
+      showNotification('Failed to delete user', 'error');
+    }
+  };
+
+  // Start editing a user
+  const startEditUser = (user) => {
+    setEditingUser(user.id);
+    setEditForm({
+      name: user.name || '',
+      email: user.email || '',
+      department: user.department || '',
+      section: user.section || '',
+      year: user.year || '',
+      role: user.role || ''
+    });
+  };
+
+  // Cancel editing
+  const cancelEdit = () => {
+    setEditingUser(null);
+    setEditForm({
+      name: '',
+      email: '',
+      department: '',
+      section: '',
+      year: '',
+      role: ''
+    });
+  };
+
+  // Save edited user
+  const saveEdit = async () => {
+    if (!editingUser) return;
+    
+    try {
+      await updateDoc(doc(db, 'users', editingUser), {
+        name: editForm.name,
+        department: editForm.department,
+        section: editForm.section,
+        year: editForm.year,
+        role: editForm.role,
+        updatedAt: new Date()
+      });
+      
+      showNotification('User updated successfully', 'success');
+      setEditingUser(null);
+      fetchUsers(); // Refresh the user list
+    } catch (error) {
+      console.error('Error updating user:', error);
+      showNotification('Failed to update user', 'error');
+    }
+  };
+
+  // Export users to Excel
+  const exportUsers = async () => {
+    try {
+      const workbook = new ExcelJS.Workbook();
+      const worksheet = workbook.addWorksheet('Users');
+      
+      // Add headers
+      worksheet.addRow(['Name', 'Email', 'Department', 'Section', 'Year', 'Role', 'Created At']);
+      
+      // Add data
+      filteredUsers.forEach(user => {
+        worksheet.addRow([
+          user.name,
+          user.email,
+          user.department,
+          user.section,
+          user.year,
+          user.role,
+          user.createdAt ? user.createdAt.toDate().toLocaleDateString() : 'N/A'
+        ]);
+      });
+      
+      // Style headers
+      worksheet.getRow(1).eachCell((cell) => {
+        cell.font = { bold: true };
+        cell.fill = {
+          type: 'pattern',
+          pattern: 'solid',
+          fgColor: { argb: 'FFE0E0E0' }
+        };
+      });
+      
+      // Auto fit columns
+      worksheet.columns.forEach(column => {
+        let maxLength = 0;
+        column.eachCell({ includeEmpty: true }, (cell) => {
+          const columnLength = cell.value ? cell.value.toString().length : 10;
+          if (columnLength > maxLength) {
+            maxLength = columnLength;
+          }
+        });
+        column.width = maxLength < 10 ? 10 : maxLength;
+      });
+      
+      // Generate and download
+      workbook.xlsx.writeBuffer().then((buffer) => {
+        const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `users_export_${new Date().toISOString().slice(0, 10)}.xlsx`;
+        a.click();
+        URL.revokeObjectURL(url);
+      });
+      
+      showNotification('Users exported successfully', 'success');
+    } catch (error) {
+      console.error('Error exporting users:', error);
+      showNotification('Failed to export users', 'error');
+    }
   };
 
   return (
@@ -361,17 +576,167 @@ const AdminDashboard = ({ showNotification, onLogout }) => {
         {activeTab === 'manage' && (
           <div className="manage-section">
             <h2>User Management</h2>
+            
             <div className="management-actions">
-              <button className="action-btn">
-                <span>View All Users</span>
+              <button className="action-btn" onClick={fetchUsers}>
+                <span>Refresh Users</span>
               </button>
-              <button className="action-btn">
-                <span>Reset Passwords</span>
-              </button>
-              <button className="action-btn">
+              <button className="action-btn" onClick={exportUsers}>
                 <span>Export Data</span>
               </button>
             </div>
+            
+            <div className="filters-container">
+              <div className="filter-group">
+                <label htmlFor="role-filter">Filter by Role:</label>
+                <select 
+                  id="role-filter" 
+                  value={filterRole} 
+                  onChange={(e) => setFilterRole(e.target.value)}
+                >
+                  <option value="all">All Users</option>
+                  <option value="student">Students</option>
+                  <option value="teacher">Teachers</option>
+                </select>
+              </div>
+              
+              <div className="filter-group">
+                <label htmlFor="search-input">Search:</label>
+                <input 
+                  id="search-input"
+                  type="text" 
+                  placeholder="Search by name, email, or department" 
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+              </div>
+            </div>
+            
+            {loadingUsers ? (
+              <LoadingSpinner text="Loading users..." />
+            ) : (
+              <div className="users-table-container">
+                <table className="users-table">
+                  <thead>
+                    <tr>
+                      <th>Name</th>
+                      <th>Email</th>
+                      <th>Department</th>
+                      <th>Section</th>
+                      <th>Year</th>
+                      <th>Role</th>
+                      <th>Created</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredUsers.length === 0 ? (
+                      <tr>
+                        <td colSpan="8" className="no-users">
+                          No users found
+                        </td>
+                      </tr>
+                    ) : (
+                      filteredUsers.map(user => (
+                        <tr key={user.id}>
+                          {editingUser === user.id ? (
+                            <>
+                              <td>
+                                <input 
+                                  type="text" 
+                                  value={editForm.name}
+                                  onChange={(e) => setEditForm({...editForm, name: e.target.value})}
+                                />
+                              </td>
+                              <td>{user.email}</td>
+                              <td>
+                                <input 
+                                  type="text" 
+                                  value={editForm.department}
+                                  onChange={(e) => setEditForm({...editForm, department: e.target.value})}
+                                />
+                              </td>
+                              <td>
+                                <input 
+                                  type="text" 
+                                  value={editForm.section}
+                                  onChange={(e) => setEditForm({...editForm, section: e.target.value})}
+                                />
+                              </td>
+                              <td>
+                                <input 
+                                  type="text" 
+                                  value={editForm.year}
+                                  onChange={(e) => setEditForm({...editForm, year: e.target.value})}
+                                />
+                              </td>
+                              <td>
+                                <select 
+                                  value={editForm.role}
+                                  onChange={(e) => setEditForm({...editForm, role: e.target.value})}
+                                >
+                                  <option value="student">Student</option>
+                                  <option value="teacher">Teacher</option>
+                                </select>
+                              </td>
+                              <td>
+                                {user.createdAt ? user.createdAt.toDate().toLocaleDateString() : 'N/A'}
+                              </td>
+                              <td>
+                                <button className="action-btn save" onClick={saveEdit}>
+                                  Save
+                                </button>
+                                <button className="action-btn cancel" onClick={cancelEdit}>
+                                  Cancel
+                                </button>
+                              </td>
+                            </>
+                          ) : (
+                            <>
+                              <td>{user.name}</td>
+                              <td>{user.email}</td>
+                              <td>{user.department}</td>
+                              <td>{user.section}</td>
+                              <td>{user.year}</td>
+                              <td>
+                                <span className={`role-badge ${user.role}`}>
+                                  {user.role}
+                                </span>
+                              </td>
+                              <td>
+                                {user.createdAt ? user.createdAt.toDate().toLocaleDateString() : 'N/A'}
+                              </td>
+                              <td>
+                                <div className="action-buttons">
+                                  <button 
+                                    className="action-btn edit"
+                                    onClick={() => startEditUser(user)}
+                                  >
+                                    Edit
+                                  </button>
+                                  <button 
+                                    className="action-btn reset"
+                                    onClick={() => resetPassword(user.id, user.email)}
+                                  >
+                                    Reset Password
+                                  </button>
+                                  <button 
+                                    className="action-btn delete"
+                                    onClick={() => deleteUser(user.id, user.email)}
+                                  >
+                                    Delete
+                                  </button>
+                                </div>
+                              </td>
+                            </>
+                          )}
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </div>
         )}
       </div>

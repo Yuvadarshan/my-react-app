@@ -238,7 +238,13 @@
   width: 150px;   /* reduced size */
   height: auto;
   margin-bottom: 10px;
-  display: block;
   margin-left: auto;
   margin-right: auto;
+}
+
+.logoin {
+  width: 100px;   /* reduced size */
+
+
+
 }

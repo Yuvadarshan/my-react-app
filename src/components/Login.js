@@ -31,7 +31,6 @@ const Login = ({ showNotification }) => {
           // For demo purposes, we'll create a custom token or use a different approach
           // Since we can't create users programmatically without proper backend,
           // we'll use a workaround by storing admin data in Firestore
-          
           // Store admin data in Firestore
           await setDoc(doc(db, 'users', adminEmail), {
             name: 'System Administrator',
